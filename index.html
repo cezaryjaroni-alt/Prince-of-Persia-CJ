@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pracuj: Corporate Escape - A Prince of Persia Tribute</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- UI Overlay -->
+    <div id="ui-overlay">
+      <!-- CV Progress Bar (Health) -->
+      <div id="cv-progress-container">
+        <div id="cv-label">CV COMPLETION</div>
+        <div id="cv-progress-bar">
+          <div id="cv-progress-fill"></div>
+        </div>
+        <div id="cv-percentage">100%</div>
+      </div>
+
+      <!-- Resume Rewind Charges -->
+      <div id="rewind-container">
+        <div id="rewind-label">RESUME REWIND [R]</div>
+        <div id="rewind-charges">
+          <div class="rewind-charge active"></div>
+          <div class="rewind-charge active"></div>
+          <div class="rewind-charge active"></div>
+        </div>
+      </div>
+
+      <!-- Controls Help -->
+      <div id="controls-help">
+        <span>WASD - Move</span>
+        <span>SPACE - Jump</span>
+        <span>SHIFT - Sprint</span>
+        <span>R - Resume Rewind</span>
+      </div>
+
+      <!-- Objective -->
+      <div id="objective">
+        <span class="objective-icon">💼</span>
+        <span>Find the Grand Offer</span>
+      </div>
+    </div>
+
+    <!-- Glitch Overlay for Rewind Effect -->
+    <div id="glitch-overlay"></div>
+
+    <!-- Start Screen -->
+    <div id="start-screen">
+      <div id="start-content">
+        <h1>PRACUJ</h1>
+        <h2>CORPORATE ESCAPE</h2>
+        <p class="tagline">Navigate the Corporate Office Dungeon</p>
+        <button id="start-button">START CAREER</button>
+        <div class="start-controls">
+          <p>WASD to move | SPACE to jump | SHIFT to sprint</p>
+          <p>Run along walls | R to Resume Rewind</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
