@@ -7,13 +7,15 @@
  * - Color tinting towards the Pracuj.pl palette
  */
 
+import * as THREE from 'three';
+
 export const PS2Shader = {
   name: 'PS2Shader',
 
   uniforms: {
     tDiffuse: { value: null },
     time: { value: 0.0 },
-    resolution: { value: null },
+    resolution: { value: new THREE.Vector2(1, 1) },
     scanlineIntensity: { value: 0.08 },
     vignetteIntensity: { value: 0.3 },
     colorBanding: { value: 32.0 }, // Color levels (lower = more banding)
@@ -120,7 +122,7 @@ export const GlitchShader = {
     tDiffuse: { value: null },
     time: { value: 0.0 },
     intensity: { value: 0.0 },
-    resolution: { value: null }
+    resolution: { value: new THREE.Vector2(1, 1) }
   },
 
   vertexShader: /* glsl */ `
