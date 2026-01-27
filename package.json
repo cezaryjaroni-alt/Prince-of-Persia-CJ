@@ -1,27 +1,25 @@
 {
-  "name": "pracuj-prince-of-persia",
+  "name": "pracuj-quest",
   "version": "1.0.0",
-  "description": "A 3D parkour platformer inspired by Prince of Persia, themed around Pracuj.pl",
+  "description": "Gra platformowa 2D w stylu Prince of Persia, tematyka Pracuj.pl",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "three": "^0.160.0",
-    "cannon-es": "^0.20.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "vite": "^5.0.10"
   },
   "keywords": [
-    "three.js",
     "game",
-    "parkour",
+    "platformer",
     "prince-of-persia",
-    "pracuj"
+    "pracuj",
+    "2d",
+    "pixel-art"
   ],
-  "author": "Corporate Hero Studios",
+  "author": "Pracuj Quest Studios",
   "license": "MIT"
 }

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pracuj: Corporate Escape - A Prince of Persia Tribute</title>
+  <title>Pracuj Quest - Kariera Czeka!</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/styles/main.css">
 </head>
 <body>
@@ -15,54 +15,112 @@
 
     <!-- UI Overlay -->
     <div id="ui-overlay">
-      <!-- CV Progress Bar (Health) -->
-      <div id="cv-progress-container">
-        <div id="cv-label">CV COMPLETION</div>
-        <div id="cv-progress-bar">
-          <div id="cv-progress-fill"></div>
+      <!-- Health Bar -->
+      <div id="health-container">
+        <div id="health-label">ENERGIA CV</div>
+        <div id="health-bar">
+          <div id="health-fill"></div>
         </div>
-        <div id="cv-percentage">100%</div>
       </div>
 
-      <!-- Resume Rewind Charges -->
-      <div id="rewind-container">
-        <div id="rewind-label">RESUME REWIND [R]</div>
-        <div id="rewind-charges">
-          <div class="rewind-charge active"></div>
-          <div class="rewind-charge active"></div>
-          <div class="rewind-charge active"></div>
+      <!-- Timer -->
+      <div id="timer-container">
+        <div id="timer-label">DO ROZMOWY</div>
+        <div id="timer-value">05:00</div>
+      </div>
+
+      <!-- Collectibles -->
+      <div id="collectibles-container">
+        <div class="collectible-item">
+          <span class="collectible-icon">📄</span>
+          <span id="cv-count">0</span>
         </div>
+        <div class="collectible-item">
+          <span class="collectible-icon">☕</span>
+          <span id="coffee-count">0</span>
+        </div>
+        <div class="collectible-item">
+          <span class="collectible-icon">⭐</span>
+          <span id="skill-count">0</span>
+        </div>
+      </div>
+
+      <!-- Level Indicator -->
+      <div id="level-indicator">
+        <span id="level-name">POZIOM 1: APLIKACJA</span>
       </div>
 
       <!-- Controls Help -->
       <div id="controls-help">
-        <span>WASD - Move</span>
-        <span>SPACE - Jump</span>
-        <span>SHIFT - Sprint</span>
-        <span>R - Resume Rewind</span>
-      </div>
-
-      <!-- Objective -->
-      <div id="objective">
-        <span class="objective-icon">💼</span>
-        <span>Find the Grand Offer</span>
+        <span>← → Ruch</span>
+        <span>↑ Skok/Wspinaczka</span>
+        <span>↓ Kucanie</span>
+        <span>SPACJA Atak</span>
       </div>
     </div>
-
-    <!-- Glitch Overlay for Rewind Effect -->
-    <div id="glitch-overlay"></div>
 
     <!-- Start Screen -->
     <div id="start-screen">
       <div id="start-content">
-        <h1>PRACUJ</h1>
-        <h2>CORPORATE ESCAPE</h2>
-        <p class="tagline">Navigate the Corporate Office Dungeon</p>
-        <button id="start-button">START CAREER</button>
-        <div class="start-controls">
-          <p>WASD to move | SPACE to jump | SHIFT to sprint</p>
-          <p>Run along walls | R to Resume Rewind</p>
+        <div id="logo-container">
+          <h1>PRACUJ</h1>
+          <div class="subtitle">QUEST</div>
         </div>
+        <h2>KARIERA CZEKA!</h2>
+        <p class="tagline">Przejdź przez korporacyjny labirynt do Wymarzonej Pracy</p>
+        <p class="story">Rok 2024. Jesteś młodym poszukiwaczem pracy w świecie pełnym<br>biurokratycznych pułapek i korporacyjnych wyzwań.<br>Tylko Ty możesz dotrzeć do Wymarzonej Posady!</p>
+        <button id="start-button">ROZPOCZNIJ KARIERĘ</button>
+        <div class="start-controls">
+          <p>← → Ruch | ↑ Skok | ↓ Kucanie | SPACJA Atak</p>
+          <p>Unikaj pułapek | Zbieraj umiejętności | Pokonaj konkurencję</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pause Screen -->
+    <div id="pause-screen" class="hidden">
+      <div class="pause-content">
+        <h2>PAUZA</h2>
+        <p>Naciśnij ESC aby kontynuować</p>
+        <button id="resume-button">KONTYNUUJ</button>
+        <button id="restart-button">OD NOWA</button>
+      </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameover-screen" class="hidden">
+      <div class="gameover-content">
+        <h2>KONIEC GRY</h2>
+        <p id="gameover-reason">Twoje CV straciło całą energię!</p>
+        <div id="final-stats">
+          <p>Zebrane umiejętności: <span id="final-skills">0</span></p>
+          <p>Wypite kawy: <span id="final-coffees">0</span></p>
+        </div>
+        <button id="retry-button">SPRÓBUJ PONOWNIE</button>
+      </div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div id="victory-screen" class="hidden">
+      <div class="victory-content">
+        <h2>GRATULACJE!</h2>
+        <p class="victory-message">Zdobyłeś Wymarzoną Pracę!</p>
+        <div id="victory-stats">
+          <p>Zebrane umiejętności: <span id="victory-skills">0</span></p>
+          <p>Pozostały czas: <span id="victory-time">00:00</span></p>
+          <p>Poziom ukończony: <span id="victory-level">1</span></p>
+        </div>
+        <button id="next-level-button">NASTĘPNY POZIOM</button>
+        <button id="play-again-button">ZAGRAJ OD NOWA</button>
+      </div>
+    </div>
+
+    <!-- Level Transition -->
+    <div id="level-transition" class="hidden">
+      <div class="transition-content">
+        <h2 id="transition-level">POZIOM 2</h2>
+        <p id="transition-name">LABIRYNT HR</p>
+        <p id="transition-hint">Wskazówka: Unikaj sal konferencyjnych!</p>
       </div>
     </div>
   </div>

@@ -1,292 +1,409 @@
 /**
- * Main Game Class
- * Orchestrates all game systems
+ * Pracuj Quest - Main Game Engine
+ * 2D Platformer w stylu Prince of Persia (1989)
  */
 
-import * as THREE from 'three';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
-
-import { Physics } from './Physics.js';
-import { Character } from './Character.js';
-import { Level } from './Level.js';
-import { RewindSystem } from './RewindSystem.js';
+import { Player } from './Player.js';
+import { LevelManager } from './LevelManager.js';
 import { UI } from './UI.js';
-import { PS2Shader } from '../shaders/PS2Shader.js';
+import { SoundManager } from './SoundManager.js';
 
 // Pracuj.pl Color Palette
 export const COLORS = {
-  PRIMARY_BLUE: 0x0046AB,
-  BLUE_DARK: 0x003380,
-  BLUE_LIGHT: 0x1a5cbb,
-  GOLD: 0xFFD700,
-  GOLD_DARK: 0xB8860B,
-  WHITE: 0xFFFFFF,
-  GRAY: 0xF5F5F5,
-  TEXT: 0x333333
+  GREEN: '#00A656',
+  GREEN_DARK: '#008544',
+  GREEN_LIGHT: '#00C969',
+  WHITE: '#FFFFFF',
+  DARK: '#1A1A2E',
+  GOLD: '#FFD700',
+  DANGER: '#FF4757',
+  GRAY: '#2D2D44',
+  BG: '#0F0F23'
+};
+
+// Game Configuration
+export const CONFIG = {
+  TILE_SIZE: 32,
+  GRAVITY: 0.6,
+  MAX_FALL_SPEED: 12,
+  GAME_WIDTH: 800,
+  GAME_HEIGHT: 480,
+  SCALE: 1
 };
 
 export class Game {
   constructor(canvas) {
     this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+
+    // Game state
     this.isRunning = false;
-    this.controlsEnabled = false;
-    this.clock = new THREE.Clock();
+    this.isPaused = false;
+    this.gameOver = false;
+    this.victory = false;
+
+    // Timing
+    this.lastTime = 0;
     this.deltaTime = 0;
+    this.accumulator = 0;
+    this.fixedTimeStep = 1000 / 60; // 60 FPS physics
 
-    // Initialize Three.js
-    this.initRenderer();
-    this.initScene();
-    this.initCamera();
-    this.initLights();
-    this.initPostProcessing();
+    // Game stats
+    this.stats = {
+      health: 100,
+      maxHealth: 100,
+      skills: 0,
+      coffees: 0,
+      cvParts: 0,
+      time: 300, // 5 minutes in seconds
+      currentLevel: 1
+    };
 
-    // Initialize game systems
-    this.physics = new Physics();
-    this.level = new Level(this.scene, this.physics);
-    this.character = new Character(this.scene, this.physics, this.camera);
-    this.rewindSystem = new RewindSystem(this.character);
-    this.ui = new UI();
+    // Initialize systems
+    this.setupCanvas();
+    this.player = new Player(this);
+    this.levelManager = new LevelManager(this);
+    this.ui = new UI(this);
+    this.soundManager = new SoundManager();
 
-    // Input handling
+    // Input state
     this.keys = {};
-    this.mouseMovement = { x: 0, y: 0 };
     this.initInput();
 
-    // Initial render
-    this.render();
+    // Camera
+    this.camera = {
+      x: 0,
+      y: 0
+    };
   }
 
-  initRenderer() {
-    this.renderer = new THREE.WebGLRenderer({
-      canvas: this.canvas,
-      antialias: true,
-      powerPreference: 'high-performance'
-    });
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.2;
-    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-  }
+  setupCanvas() {
+    // Set canvas size
+    this.canvas.width = CONFIG.GAME_WIDTH;
+    this.canvas.height = CONFIG.GAME_HEIGHT;
 
-  initScene() {
-    this.scene = new THREE.Scene();
+    // Scale canvas to fit window while maintaining aspect ratio
+    this.handleResize();
 
-    // Corporate office atmosphere - dark with blue tint
-    this.scene.background = new THREE.Color(0x0a0a1a);
-    this.scene.fog = new THREE.FogExp2(0x0a0a1a, 0.015);
-  }
-
-  initCamera() {
-    this.camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-    this.camera.position.set(0, 5, 10);
-  }
-
-  initLights() {
-    // Ambient light - blue tinted for corporate atmosphere
-    const ambient = new THREE.AmbientLight(0x1a1a3a, 0.4);
-    this.scene.add(ambient);
-
-    // Main directional light - simulates office lighting
-    const mainLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    mainLight.position.set(10, 20, 10);
-    mainLight.castShadow = true;
-    mainLight.shadow.mapSize.width = 2048;
-    mainLight.shadow.mapSize.height = 2048;
-    mainLight.shadow.camera.near = 0.5;
-    mainLight.shadow.camera.far = 100;
-    mainLight.shadow.camera.left = -30;
-    mainLight.shadow.camera.right = 30;
-    mainLight.shadow.camera.top = 30;
-    mainLight.shadow.camera.bottom = -30;
-    this.scene.add(mainLight);
-
-    // Blue accent lights - Pracuj branding
-    const blueLight1 = new THREE.PointLight(COLORS.PRIMARY_BLUE, 2, 30);
-    blueLight1.position.set(-10, 10, -10);
-    this.scene.add(blueLight1);
-
-    const blueLight2 = new THREE.PointLight(COLORS.BLUE_LIGHT, 1.5, 25);
-    blueLight2.position.set(15, 8, 5);
-    this.scene.add(blueLight2);
-
-    // Gold accent light for the goal
-    const goldLight = new THREE.PointLight(COLORS.GOLD, 2, 20);
-    goldLight.position.set(0, 10, -40);
-    this.scene.add(goldLight);
-  }
-
-  initPostProcessing() {
-    this.composer = new EffectComposer(this.renderer);
-
-    // Render pass
-    const renderPass = new RenderPass(this.scene, this.camera);
-    this.composer.addPass(renderPass);
-
-    // PS2-era bloom effect
-    const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.5,   // strength
-      0.4,   // radius
-      0.85   // threshold
-    );
-    this.composer.addPass(bloomPass);
-
-    // Custom PS2 shader for retro look
-    const ps2Pass = new ShaderPass(PS2Shader);
-    ps2Pass.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
-    this.composer.addPass(ps2Pass);
-    this.ps2Pass = ps2Pass;
+    // Disable image smoothing for pixel art
+    this.ctx.imageSmoothingEnabled = false;
   }
 
   initInput() {
-    // Keyboard input
     document.addEventListener('keydown', (e) => {
       this.keys[e.code] = true;
 
-      // Rewind mechanic
-      if (e.code === 'KeyR' && this.isRunning) {
-        this.triggerRewind();
+      // Prevent default for game keys
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+        e.preventDefault();
       }
     });
 
     document.addEventListener('keyup', (e) => {
       this.keys[e.code] = false;
     });
-
-    // Mouse input for camera control
-    document.addEventListener('mousemove', (e) => {
-      if (this.controlsEnabled) {
-        this.mouseMovement.x = e.movementX || 0;
-        this.mouseMovement.y = e.movementY || 0;
-      }
-    });
-  }
-
-  triggerRewind() {
-    if (this.rewindSystem.canRewind()) {
-      this.rewindSystem.startRewind();
-      this.ui.useRewindCharge();
-
-      // Activate glitch effect
-      const glitchOverlay = document.getElementById('glitch-overlay');
-      glitchOverlay.classList.add('active');
-
-      setTimeout(() => {
-        glitchOverlay.classList.remove('active');
-      }, this.rewindSystem.rewindDuration * 1000);
-    }
   }
 
   start() {
     this.isRunning = true;
-    this.clock.start();
+    this.isPaused = false;
+    this.gameOver = false;
+    this.victory = false;
+    this.lastTime = performance.now();
+
+    // Load first level
+    this.levelManager.loadLevel(1);
+
+    // Start game loop
     this.gameLoop();
   }
 
-  stop() {
-    this.isRunning = false;
+  pause() {
+    this.isPaused = true;
   }
 
-  setControlsEnabled(enabled) {
-    this.controlsEnabled = enabled;
+  resume() {
+    this.isPaused = false;
+    this.lastTime = performance.now();
   }
 
-  gameLoop() {
+  restart() {
+    // Reset stats
+    this.stats = {
+      health: 100,
+      maxHealth: 100,
+      skills: 0,
+      coffees: 0,
+      cvParts: 0,
+      time: 300,
+      currentLevel: 1
+    };
+
+    // Reset player
+    this.player.reset();
+
+    // Reload level
+    this.levelManager.loadLevel(1);
+
+    // Update UI
+    this.ui.update();
+
+    // Start
+    this.gameOver = false;
+    this.victory = false;
+    this.isPaused = false;
+    this.isRunning = true;
+    this.lastTime = performance.now();
+
+    document.getElementById('ui-overlay').classList.add('active');
+  }
+
+  nextLevel() {
+    this.stats.currentLevel++;
+
+    if (this.stats.currentLevel > this.levelManager.totalLevels) {
+      // Game completed!
+      this.showFinalVictory();
+      return;
+    }
+
+    // Load next level
+    this.levelManager.loadLevel(this.stats.currentLevel);
+    this.player.reset();
+    this.victory = false;
+    this.isPaused = false;
+
+    document.getElementById('ui-overlay').classList.add('active');
+  }
+
+  gameLoop(currentTime = performance.now()) {
     if (!this.isRunning) return;
 
-    requestAnimationFrame(() => this.gameLoop());
+    requestAnimationFrame((time) => this.gameLoop(time));
 
-    this.deltaTime = Math.min(this.clock.getDelta(), 0.1); // Cap delta time
+    // Calculate delta time
+    this.deltaTime = currentTime - this.lastTime;
+    this.lastTime = currentTime;
 
-    // Update systems
-    this.update(this.deltaTime);
+    // Cap delta time
+    if (this.deltaTime > 100) this.deltaTime = 100;
+
+    if (!this.isPaused && !this.gameOver && !this.victory) {
+      // Fixed timestep for physics
+      this.accumulator += this.deltaTime;
+
+      while (this.accumulator >= this.fixedTimeStep) {
+        this.update(this.fixedTimeStep / 1000);
+        this.accumulator -= this.fixedTimeStep;
+      }
+
+      // Update timer
+      this.stats.time -= this.deltaTime / 1000;
+      if (this.stats.time <= 0) {
+        this.stats.time = 0;
+        this.onGameOver('Czas na rozmowę minął!');
+      }
+    }
+
+    // Always render
     this.render();
   }
 
   update(dt) {
-    // Update physics
-    this.physics.update(dt);
-
-    // Update character
+    // Get input
     const input = {
-      forward: this.keys['KeyW'] || false,
-      backward: this.keys['KeyS'] || false,
-      left: this.keys['KeyA'] || false,
-      right: this.keys['KeyD'] || false,
-      jump: this.keys['Space'] || false,
-      sprint: this.keys['ShiftLeft'] || this.keys['ShiftRight'] || false,
-      mouseX: this.mouseMovement.x,
-      mouseY: this.mouseMovement.y
+      left: this.keys['ArrowLeft'] || this.keys['KeyA'],
+      right: this.keys['ArrowRight'] || this.keys['KeyD'],
+      up: this.keys['ArrowUp'] || this.keys['KeyW'],
+      down: this.keys['ArrowDown'] || this.keys['KeyS'],
+      jump: this.keys['ArrowUp'] || this.keys['KeyW'] || this.keys['Space'],
+      attack: this.keys['Space'] || this.keys['KeyX'],
+      crouch: this.keys['ArrowDown'] || this.keys['KeyS']
     };
 
-    // Reset mouse movement after reading
-    this.mouseMovement.x = 0;
-    this.mouseMovement.y = 0;
+    // Update player
+    this.player.update(dt, input);
 
-    // Check if rewinding
-    if (this.rewindSystem.isRewinding) {
-      this.rewindSystem.update(dt);
-    } else {
-      this.character.update(dt, input);
-      this.rewindSystem.recordState();
-    }
+    // Update level (enemies, traps, collectibles)
+    this.levelManager.update(dt);
 
-    // Update level (animated elements, hazards)
-    this.level.update(dt);
+    // Update camera
+    this.updateCamera();
 
     // Update UI
-    this.ui.update(this.character);
+    this.ui.update();
 
-    // Update shader time
-    if (this.ps2Pass) {
-      this.ps2Pass.uniforms.time.value = this.clock.elapsedTime;
-    }
-
-    // Check for goal
-    this.checkGoal();
-  }
-
-  checkGoal() {
-    const goalPos = this.level.getGoalPosition();
-    const playerPos = this.character.getPosition();
-
-    if (goalPos && playerPos.distanceTo(goalPos) < 2) {
-      this.onGoalReached();
+    // Check level completion
+    if (this.levelManager.checkGoal(this.player)) {
+      this.onLevelComplete();
     }
   }
 
-  onGoalReached() {
-    console.log('🎉 Congratulations! You found the Grand Offer!');
-    // Could trigger victory screen here
+  updateCamera() {
+    const level = this.levelManager.currentLevel;
+    if (!level) return;
+
+    // Smooth camera follow
+    const targetX = this.player.x - CONFIG.GAME_WIDTH / 2 + this.player.width / 2;
+    const targetY = this.player.y - CONFIG.GAME_HEIGHT / 2 + this.player.height / 2;
+
+    // Clamp camera to level bounds
+    const maxX = level.width * CONFIG.TILE_SIZE - CONFIG.GAME_WIDTH;
+    const maxY = level.height * CONFIG.TILE_SIZE - CONFIG.GAME_HEIGHT;
+
+    this.camera.x += (targetX - this.camera.x) * 0.1;
+    this.camera.y += (targetY - this.camera.y) * 0.1;
+
+    this.camera.x = Math.max(0, Math.min(this.camera.x, maxX));
+    this.camera.y = Math.max(0, Math.min(this.camera.y, maxY));
   }
 
   render() {
-    this.composer.render();
+    // Clear canvas
+    this.ctx.fillStyle = COLORS.BG;
+    this.ctx.fillRect(0, 0, CONFIG.GAME_WIDTH, CONFIG.GAME_HEIGHT);
+
+    // Save context for camera transformation
+    this.ctx.save();
+    this.ctx.translate(-Math.floor(this.camera.x), -Math.floor(this.camera.y));
+
+    // Render level
+    this.levelManager.render(this.ctx);
+
+    // Render player
+    this.player.render(this.ctx);
+
+    // Restore context
+    this.ctx.restore();
+
+    // Render UI elements (on top, not affected by camera)
+    this.renderOverlayEffects();
+  }
+
+  renderOverlayEffects() {
+    // Damage flash
+    if (this.player.damageFlash > 0) {
+      this.ctx.fillStyle = `rgba(255, 71, 87, ${this.player.damageFlash * 0.3})`;
+      this.ctx.fillRect(0, 0, CONFIG.GAME_WIDTH, CONFIG.GAME_HEIGHT);
+    }
+
+    // Low health warning
+    if (this.stats.health <= 25) {
+      const pulse = Math.sin(performance.now() / 200) * 0.1 + 0.1;
+      this.ctx.fillStyle = `rgba(255, 0, 0, ${pulse})`;
+      this.ctx.fillRect(0, 0, CONFIG.GAME_WIDTH, CONFIG.GAME_HEIGHT);
+    }
+  }
+
+  takeDamage(amount, reason = '') {
+    if (this.player.invulnerable) return;
+
+    this.stats.health -= amount;
+    this.player.damageFlash = 1;
+    this.player.invulnerable = true;
+    this.player.invulnerableTimer = 60; // 1 second at 60fps
+
+    this.soundManager.play('hurt');
+
+    if (this.stats.health <= 0) {
+      this.stats.health = 0;
+      this.onGameOver(reason || 'Twoje CV straciło całą energię!');
+    }
+
+    this.ui.update();
+  }
+
+  heal(amount) {
+    this.stats.health = Math.min(this.stats.maxHealth, this.stats.health + amount);
+    this.soundManager.play('heal');
+    this.ui.update();
+  }
+
+  collectItem(type) {
+    switch (type) {
+      case 'skill':
+        this.stats.skills++;
+        this.soundManager.play('collect');
+        break;
+      case 'coffee':
+        this.stats.coffees++;
+        this.heal(20);
+        break;
+      case 'cv':
+        this.stats.cvParts++;
+        this.stats.skills += 5;
+        this.soundManager.play('powerup');
+        break;
+    }
+    this.ui.update();
+  }
+
+  onLevelComplete() {
+    this.victory = true;
+    this.soundManager.play('victory');
+
+    // Show victory screen
+    const victoryScreen = document.getElementById('victory-screen');
+    document.getElementById('victory-skills').textContent = this.stats.skills;
+    document.getElementById('victory-time').textContent = this.formatTime(this.stats.time);
+    document.getElementById('victory-level').textContent = this.stats.currentLevel;
+
+    // Update button text based on level
+    const nextBtn = document.getElementById('next-level-button');
+    if (this.stats.currentLevel >= this.levelManager.totalLevels) {
+      nextBtn.textContent = 'UKOŃCZONO GRĘ!';
+      nextBtn.disabled = true;
+    } else {
+      nextBtn.textContent = 'NASTĘPNY POZIOM';
+      nextBtn.disabled = false;
+    }
+
+    victoryScreen.classList.remove('hidden');
+    document.getElementById('ui-overlay').classList.remove('active');
+  }
+
+  onGameOver(reason) {
+    this.gameOver = true;
+    this.soundManager.play('gameover');
+
+    // Show game over screen
+    const gameoverScreen = document.getElementById('gameover-screen');
+    document.getElementById('gameover-reason').textContent = reason;
+    document.getElementById('final-skills').textContent = this.stats.skills;
+    document.getElementById('final-coffees').textContent = this.stats.coffees;
+
+    gameoverScreen.classList.remove('hidden');
+    document.getElementById('ui-overlay').classList.remove('active');
+  }
+
+  showFinalVictory() {
+    this.victory = true;
+
+    const victoryScreen = document.getElementById('victory-screen');
+    document.querySelector('.victory-message').textContent = 'Ukończyłeś wszystkie poziomy!';
+    document.getElementById('next-level-button').style.display = 'none';
+
+    victoryScreen.classList.remove('hidden');
+  }
+
+  formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 
   handleResize() {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const container = document.getElementById('game-container');
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
 
-    this.camera.aspect = width / height;
-    this.camera.updateProjectionMatrix();
+    const scaleX = containerWidth / CONFIG.GAME_WIDTH;
+    const scaleY = containerHeight / CONFIG.GAME_HEIGHT;
+    const scale = Math.min(scaleX, scaleY) * 0.95;
 
-    this.renderer.setSize(width, height);
-    this.composer.setSize(width, height);
+    this.canvas.style.width = `${CONFIG.GAME_WIDTH * scale}px`;
+    this.canvas.style.height = `${CONFIG.GAME_HEIGHT * scale}px`;
 
-    if (this.ps2Pass) {
-      this.ps2Pass.uniforms.resolution.value.set(width, height);
-    }
+    CONFIG.SCALE = scale;
   }
 }

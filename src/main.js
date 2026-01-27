@@ -1,16 +1,24 @@
 /**
- * Pracuj: Corporate Escape
- * A Prince of Persia-inspired parkour platformer
- * Themed around Pracuj.pl - Poland's leading job portal
+ * Pracuj Quest - Kariera Czeka!
+ * Gra platformowa 2D inspirowana Prince of Persia (1989)
+ * Tematyka: Pracuj.pl - polski portal pracy
  */
 
 import { Game } from './game/Game.js';
 
-// Wait for DOM to be ready
+// Initialize game when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('game-canvas');
   const startScreen = document.getElementById('start-screen');
   const startButton = document.getElementById('start-button');
+  const pauseScreen = document.getElementById('pause-screen');
+  const resumeButton = document.getElementById('resume-button');
+  const restartButton = document.getElementById('restart-button');
+  const gameoverScreen = document.getElementById('gameover-screen');
+  const retryButton = document.getElementById('retry-button');
+  const victoryScreen = document.getElementById('victory-screen');
+  const nextLevelButton = document.getElementById('next-level-button');
+  const playAgainButton = document.getElementById('play-again-button');
   const uiOverlay = document.getElementById('ui-overlay');
 
   // Initialize the game
@@ -21,24 +29,51 @@ document.addEventListener('DOMContentLoaded', () => {
     startScreen.classList.add('hidden');
     uiOverlay.classList.add('active');
     game.start();
-
-    // Lock pointer for FPS-style controls
-    canvas.requestPointerLock();
   });
 
-  // Handle pointer lock changes
-  document.addEventListener('pointerlockchange', () => {
-    if (document.pointerLockElement === canvas) {
-      game.setControlsEnabled(true);
-    } else {
-      game.setControlsEnabled(false);
-    }
+  // Pause handlers
+  resumeButton.addEventListener('click', () => {
+    pauseScreen.classList.add('hidden');
+    game.resume();
   });
 
-  // Click to re-lock pointer during gameplay
-  canvas.addEventListener('click', () => {
-    if (startScreen.classList.contains('hidden')) {
-      canvas.requestPointerLock();
+  restartButton.addEventListener('click', () => {
+    pauseScreen.classList.add('hidden');
+    gameoverScreen.classList.add('hidden');
+    game.restart();
+  });
+
+  // Game over handler
+  retryButton.addEventListener('click', () => {
+    gameoverScreen.classList.add('hidden');
+    game.restart();
+  });
+
+  // Victory handlers
+  nextLevelButton.addEventListener('click', () => {
+    victoryScreen.classList.add('hidden');
+    game.nextLevel();
+  });
+
+  playAgainButton.addEventListener('click', () => {
+    victoryScreen.classList.add('hidden');
+    game.restart();
+  });
+
+  // ESC key for pause
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (!startScreen.classList.contains('hidden')) return;
+      if (!gameoverScreen.classList.contains('hidden')) return;
+      if (!victoryScreen.classList.contains('hidden')) return;
+
+      if (pauseScreen.classList.contains('hidden')) {
+        pauseScreen.classList.remove('hidden');
+        game.pause();
+      } else {
+        pauseScreen.classList.add('hidden');
+        game.resume();
+      }
     }
   });
 
@@ -50,6 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Prevent context menu on right-click
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-  console.log('%c🎮 Pracuj: Corporate Escape', 'color: #0046AB; font-size: 20px; font-weight: bold;');
-  console.log('%cNavigate the Corporate Office Dungeon and find the Grand Offer!', 'color: #FFD700;');
+  console.log('%c PRACUJ QUEST ', 'background: #00A656; color: white; font-size: 20px; font-weight: bold; padding: 10px;');
+  console.log('%cKariera Czeka! Gra platformowa 2D', 'color: #ffd700; font-size: 14px;');
 });
