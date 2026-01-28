@@ -52,6 +52,7 @@ body {
   image-rendering: crisp-edges;
   border: 4px solid var(--pracuj-green);
   box-shadow: 0 0 30px rgba(0, 166, 86, 0.3);
+  z-index: 1;
 }
 
 /* UI Overlay */

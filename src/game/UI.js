@@ -7,7 +7,7 @@ export class UI {
   constructor(game) {
     this.game = game;
 
-    // Get UI elements
+    // Get UI elements (with null safety)
     this.healthFill = document.getElementById('health-fill');
     this.timerValue = document.getElementById('timer-value');
     this.timerContainer = document.getElementById('timer-container');
@@ -18,37 +18,45 @@ export class UI {
   }
 
   update() {
+    if (!this.game || !this.game.stats) return;
+
     const stats = this.game.stats;
 
     // Update health bar
-    const healthPercent = (stats.health / stats.maxHealth) * 100;
-    this.healthFill.style.width = `${healthPercent}%`;
+    if (this.healthFill) {
+      const healthPercent = (stats.health / stats.maxHealth) * 100;
+      this.healthFill.style.width = `${healthPercent}%`;
 
-    // Health color change
-    if (healthPercent < 30) {
-      this.healthFill.style.background = 'linear-gradient(180deg, #ff6b6b 0%, #ee5a5a 50%, #c92a2a 100%)';
-    } else if (healthPercent < 60) {
-      this.healthFill.style.background = 'linear-gradient(180deg, #ffd43b 0%, #fab005 50%, #f59f00 100%)';
-    } else {
-      this.healthFill.style.background = 'linear-gradient(180deg, #00C969 0%, #00A656 50%, #008544 100%)';
+      // Health color change
+      if (healthPercent < 30) {
+        this.healthFill.style.background = 'linear-gradient(180deg, #ff6b6b 0%, #ee5a5a 50%, #c92a2a 100%)';
+      } else if (healthPercent < 60) {
+        this.healthFill.style.background = 'linear-gradient(180deg, #ffd43b 0%, #fab005 50%, #f59f00 100%)';
+      } else {
+        this.healthFill.style.background = 'linear-gradient(180deg, #00C969 0%, #00A656 50%, #008544 100%)';
+      }
     }
 
     // Update timer
-    const mins = Math.floor(stats.time / 60);
-    const secs = Math.floor(stats.time % 60);
-    this.timerValue.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    if (this.timerValue) {
+      const mins = Math.floor(stats.time / 60);
+      const secs = Math.floor(stats.time % 60);
+      this.timerValue.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
 
     // Timer warning when low
-    if (stats.time <= 60) {
-      this.timerContainer.classList.add('warning');
-    } else {
-      this.timerContainer.classList.remove('warning');
+    if (this.timerContainer) {
+      if (stats.time <= 60) {
+        this.timerContainer.classList.add('warning');
+      } else {
+        this.timerContainer.classList.remove('warning');
+      }
     }
 
     // Update collectibles
-    this.cvCount.textContent = stats.cvParts;
-    this.coffeeCount.textContent = stats.coffees;
-    this.skillCount.textContent = stats.skills;
+    if (this.cvCount) this.cvCount.textContent = stats.cvParts;
+    if (this.coffeeCount) this.coffeeCount.textContent = stats.coffees;
+    if (this.skillCount) this.skillCount.textContent = stats.skills;
   }
 
   showMessage(text, duration = 2000) {
@@ -61,12 +69,15 @@ export class UI {
     message.className = 'game-message';
     message.textContent = text;
 
-    document.getElementById('game-container').appendChild(message);
+    const container = document.getElementById('game-container');
+    if (container) {
+      container.appendChild(message);
 
-    setTimeout(() => {
-      message.style.opacity = '0';
-      setTimeout(() => message.remove(), 300);
-    }, duration);
+      setTimeout(() => {
+        message.style.opacity = '0';
+        setTimeout(() => message.remove(), 300);
+      }, duration);
+    }
   }
 
   showFloatingText(x, y, text, color = '#FFD700') {

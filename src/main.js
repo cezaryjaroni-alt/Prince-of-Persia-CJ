@@ -21,14 +21,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const playAgainButton = document.getElementById('play-again-button');
   const uiOverlay = document.getElementById('ui-overlay');
 
+  let game;
+
   // Initialize the game
-  const game = new Game(canvas);
+  try {
+    game = new Game(canvas);
+    console.log('Game initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize game:', error);
+    return;
+  }
 
   // Start button handler
   startButton.addEventListener('click', () => {
-    startScreen.classList.add('hidden');
-    uiOverlay.classList.add('active');
-    game.start();
+    console.log('Start button clicked!');
+    try {
+      startScreen.classList.add('hidden');
+      uiOverlay.classList.add('active');
+      game.start();
+    } catch (error) {
+      console.error('Failed to start game:', error);
+    }
   });
 
   // Pause handlers
