@@ -32,15 +32,29 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // Start button handler
-  startButton.addEventListener('click', () => {
-    console.log('Start button clicked!');
+  // Start game function
+  const doStartGame = () => {
+    console.log('Starting game...');
     try {
       startScreen.classList.add('hidden');
       uiOverlay.classList.add('active');
       game.start();
     } catch (error) {
       console.error('Failed to start game:', error);
+    }
+  };
+
+  // Expose globally for onclick fallback
+  window.startGame = doStartGame;
+
+  // Start button handler
+  startButton.addEventListener('click', doStartGame);
+
+  // Also allow Enter key to start game from start screen
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'Enter' || e.code === 'Space') && !startScreen.classList.contains('hidden')) {
+      e.preventDefault();
+      doStartGame();
     }
   });
 
