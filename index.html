@@ -69,7 +69,7 @@
         <h2>KARIERA CZEKA!</h2>
         <p class="tagline">Przejdź przez korporacyjny labirynt do Wymarzonej Pracy</p>
         <p class="story">Rok 2024. Jesteś młodym poszukiwaczem pracy w świecie pełnym<br>biurokratycznych pułapek i korporacyjnych wyzwań.<br>Tylko Ty możesz dotrzeć do Wymarzonej Posady!</p>
-        <button id="start-button" onclick="window.startGame && window.startGame()">ROZPOCZNIJ KARIERĘ</button>
+        <button id="start-button" onclick="window.handleStartClick()">ROZPOCZNIJ KARIERĘ</button>
         <div class="start-controls">
           <p>← → Ruch | ↑ Skok | ↓ Kucanie | SPACJA Atak</p>
           <p>Unikaj pułapek | Zbieraj umiejętności | Pokonaj konkurencję</p>
@@ -125,24 +125,59 @@
     </div>
   </div>
 
+  <!-- Debug panel - visible on page -->
+  <div id="debug-panel" style="position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.9);color:#0f0;font-family:monospace;font-size:10px;padding:10px;z-index:9999;max-width:300px;border:1px solid #0f0;"></div>
+
   <!-- Fallback script that always runs -->
   <script>
-    console.log('=== FALLBACK SCRIPT LOADED ===');
+    // Debug helper
+    function debug(msg) {
+      var panel = document.getElementById('debug-panel');
+      if (panel) {
+        panel.innerHTML += msg + '<br>';
+      }
+    }
 
-    // Simple fallback to at least make button clickable
+    debug('1. Script loaded');
+
+    // Direct button handler - no dependencies
+    window.handleStartClick = function() {
+      debug('5. Button clicked!');
+
+      if (window.startGame) {
+        debug('6. Calling startGame...');
+        window.startGame();
+      } else {
+        debug('6. ERROR: startGame not ready');
+        // Try to start anyway by hiding screen
+        var screen = document.getElementById('start-screen');
+        var overlay = document.getElementById('ui-overlay');
+        if (screen) screen.classList.add('hidden');
+        if (overlay) overlay.classList.add('active');
+        debug('7. Forced screen hide');
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('=== DOM READY (fallback) ===');
+      debug('2. DOM ready');
 
       var btn = document.getElementById('start-button');
       if (btn) {
-        console.log('=== BUTTON FOUND ===');
-        btn.addEventListener('click', function() {
-          console.log('=== BUTTON CLICKED (fallback) ===');
-          // If main game hasn't loaded, show error
-          if (!window.startGame) {
-            alert('Gra się ładuje... Poczekaj chwilę i spróbuj ponownie.');
-          }
-        });
+        debug('3. Button found');
+        btn.onclick = window.handleStartClick;
+        debug('4. Click handler attached');
+      } else {
+        debug('3. ERROR: Button NOT found!');
+      }
+    });
+
+    // Check if module loads
+    window.addEventListener('load', function() {
+      debug('8. Window loaded');
+      if (window.startGame) {
+        debug('9. Game module OK');
+      } else {
+        debug('9. Game module FAILED');
       }
     });
   </script>
