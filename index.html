@@ -180,8 +180,27 @@
         debug('9. Game module FAILED');
       }
     });
+
+    // Catch module errors
+    window.addEventListener('error', function(e) {
+      debug('ERROR: ' + e.message);
+    });
   </script>
 
-  <script type="module" src="/src/main.js"></script>
+  <script type="module" src="/src/main.js" onerror="debug('MODULE LOAD ERROR')"></script>
+
+  <!-- Backup: try to import module manually -->
+  <script type="module">
+    try {
+      debug('10. Trying module import...');
+      import('./src/main.js').then(function() {
+        debug('11. Module imported OK');
+      }).catch(function(err) {
+        debug('11. Import error: ' + err.message);
+      });
+    } catch(e) {
+      debug('10. Import failed: ' + e.message);
+    }
+  </script>
 </body>
 </html>
