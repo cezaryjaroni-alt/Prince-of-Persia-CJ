@@ -125,6 +125,28 @@
     </div>
   </div>
 
+  <!-- Fallback script that always runs -->
+  <script>
+    console.log('=== FALLBACK SCRIPT LOADED ===');
+
+    // Simple fallback to at least make button clickable
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('=== DOM READY (fallback) ===');
+
+      var btn = document.getElementById('start-button');
+      if (btn) {
+        console.log('=== BUTTON FOUND ===');
+        btn.addEventListener('click', function() {
+          console.log('=== BUTTON CLICKED (fallback) ===');
+          // If main game hasn't loaded, show error
+          if (!window.startGame) {
+            alert('Gra się ładuje... Poczekaj chwilę i spróbuj ponownie.');
+          }
+        });
+      }
+    });
+  </script>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

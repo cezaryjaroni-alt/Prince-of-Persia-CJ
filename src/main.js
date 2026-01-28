@@ -4,7 +4,11 @@
  * Tematyka: Pracuj.pl - polski portal pracy
  */
 
+console.log('=== PRACUJ QUEST LOADING ===');
+
 import { Game } from './game/Game.js';
+
+console.log('=== IMPORTS LOADED ===');
 
 // Initialize game when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
