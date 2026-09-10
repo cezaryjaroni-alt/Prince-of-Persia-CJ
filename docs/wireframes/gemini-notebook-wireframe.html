@@ -1,0 +1,754 @@
+<title>Gemini Notebook Wireframe</title>
+<meta name="description" content="An 8-block scroll-by-scroll breakdown of the Gemini Notebook landing page wireframe, with the UX rationale behind each section.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEEFE9;
+    --surface:#FFFFFF;
+    --surface-2:#F6F6F1;
+    --ink:#1B201D;
+    --ink-soft:#5B655D;
+    --ink-faint:#8D958D;
+    --line:#D7DACF;
+    --line-strong:#B9BEAF;
+    --accent:#2C5F52;
+    --accent-soft:#DCE7E2;
+    --warm:#A85A24;
+    --warm-soft:#F1E1CD;
+    --flag:#9C3B33;
+    --flag-soft:#F3E1DD;
+    --pin:#2C5F52;
+    --shadow: 0 1px 2px rgba(27,32,29,0.06), 0 6px 20px rgba(27,32,29,0.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#141815;
+      --surface:#1C2220;
+      --surface-2:#232B27;
+      --ink:#ECEFE9;
+      --ink-soft:#A6B0A6;
+      --ink-faint:#727C73;
+      --line:#333C36;
+      --line-strong:#48534B;
+      --accent:#7BC4AC;
+      --accent-soft:#243530;
+      --warm:#E7A164;
+      --warm-soft:#3B2A19;
+      --flag:#E58077;
+      --flag-soft:#3B2521;
+      --pin:#7BC4AC;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#141815;
+    --surface:#1C2220;
+    --surface-2:#232B27;
+    --ink:#ECEFE9;
+    --ink-soft:#A6B0A6;
+    --ink-faint:#727C73;
+    --line:#333C36;
+    --line-strong:#48534B;
+    --accent:#7BC4AC;
+    --accent-soft:#243530;
+    --warm:#E7A164;
+    --warm-soft:#3B2A19;
+    --flag:#E58077;
+    --flag-soft:#3B2521;
+    --pin:#7BC4AC;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    padding:0 20px;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:"IBM Plex Serif", Georgia, serif; text-wrap:balance; margin:0;}
+  .mono{font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;}
+
+  .page{
+    max-width:1040px;
+    margin:0 auto;
+    padding-block:56px 80px;
+    display:flex;
+    gap:36px;
+    align-items:flex-start;
+  }
+
+  /* ---------- Scroll ruler (wayfinding rail) ---------- */
+  .ruler{
+    position:sticky;
+    top:56px;
+    flex:0 0 84px;
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    height:calc(100vh - 112px);
+    min-height:420px;
+  }
+  .ruler-title{
+    font-size:10px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-bottom:10px;
+  }
+  .ruler-track{
+    position:relative;
+    flex:1;
+    border-left:2px solid var(--line);
+    display:flex;
+    flex-direction:column;
+  }
+  .ruler-seg{
+    position:relative;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    padding-left:12px;
+    transition:background .15s ease;
+  }
+  .ruler-seg:last-child{border-bottom:none;}
+  .ruler-seg::before{
+    content:"";
+    position:absolute;
+    left:-2px; top:0; bottom:0;
+    width:2px;
+    background:transparent;
+    transition:background .15s ease;
+  }
+  .ruler-seg.active::before{background:var(--pin);}
+  .ruler-seg.active{background:var(--accent-soft);}
+  .ruler-num{
+    font-size:11px;
+    color:var(--ink-faint);
+    transition:color .15s ease;
+  }
+  .ruler-seg.active .ruler-num{color:var(--accent); font-weight:600;}
+
+  @media (max-width:760px){
+    .ruler{display:none;}
+    .page{padding-block:40px 64px;}
+  }
+
+  main{flex:1; min-width:0;}
+
+  /* ---------- Header ---------- */
+  header{margin-bottom:40px;}
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:10px;
+    font-weight:600;
+  }
+  h1{font-size:clamp(28px,4vw,38px); font-weight:600; line-height:1.15;}
+  .dek{
+    margin-top:14px;
+    max-width:62ch;
+    color:var(--ink-soft);
+    font-size:15.5px;
+    line-height:1.6;
+  }
+  .legend{
+    margin-top:22px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:18px;
+    padding:14px 16px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    box-shadow:var(--shadow);
+  }
+  .legend-item{display:flex; align-items:center; gap:7px;}
+  .tag{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:17px; height:17px; border-radius:4px;
+    font-family:"IBM Plex Mono", monospace;
+    font-size:10px; font-weight:600;
+    flex:none;
+  }
+  .tag-a{background:var(--accent-soft); color:var(--accent);}
+  .tag-b{background:var(--warm-soft); color:var(--warm);}
+  .tag-c{background:var(--surface-2); color:var(--ink-faint); border:1px solid var(--line);}
+
+  /* ---------- Blocks ---------- */
+  .block{
+    padding-block:34px;
+    border-top:1px solid var(--line);
+  }
+  .block:first-of-type{border-top:none; padding-top:0;}
+
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    margin-bottom:6px;
+  }
+  .pin{
+    flex:none;
+    width:26px; height:26px;
+    border-radius:50%;
+    background:var(--pin);
+    color:var(--surface);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"IBM Plex Mono", monospace;
+    font-size:12px; font-weight:600;
+  }
+  .block-kicker{
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    font-weight:600;
+  }
+  .block-range{
+    margin-left:auto;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    white-space:nowrap;
+  }
+  .block-title{
+    font-size:21px;
+    font-weight:600;
+    line-height:1.3;
+    margin:6px 0 22px 38px;
+    max-width:52ch;
+  }
+
+  .block-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1.05fr) minmax(0,1.3fr);
+    gap:28px;
+    margin-left:38px;
+  }
+  @media (max-width:720px){
+    .block-grid{grid-template-columns:1fr; margin-left:0;}
+    .block-title{margin-left:0;}
+  }
+
+  /* ---------- Wireframe sketch panel ---------- */
+  .sketch{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+    box-shadow:var(--shadow);
+  }
+  .sketch-label{
+    font-size:10px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-bottom:12px;
+  }
+  .wbox{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 10px;
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+  .wbox .wlabel{
+    display:block;
+    font-family:"IBM Plex Mono", monospace;
+    font-size:9px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-bottom:3px;
+  }
+  .wbox strong{color:var(--ink); font-weight:600;}
+  .wbox.quote{
+    background:var(--warm-soft);
+    border-color:transparent;
+    color:var(--ink);
+    font-family:"IBM Plex Serif", serif;
+    font-size:13px;
+    line-height:1.5;
+  }
+  .wstack{display:flex; flex-direction:column; gap:8px;}
+  .wrow{display:flex; gap:8px; align-items:stretch;}
+  .wrow > .wbox{flex:1; min-width:0;}
+  .wchain{display:flex; align-items:center; gap:4px;}
+  .wchain .wbox{flex:1; text-align:center;}
+  .warrow{color:var(--ink-faint); font-size:13px; flex:none;}
+  .wpill{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:100px;
+    font-size:10.5px;
+    font-family:"IBM Plex Mono", monospace;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+  }
+  .wpill.solid{background:var(--accent); color:var(--surface); border-color:var(--accent);}
+  .wbars{display:flex; flex-direction:column; gap:5px; margin-top:8px;}
+  .wbar{height:9px; border-radius:3px; background:var(--surface-2); border:1px solid var(--line);}
+  .wbar.ink{background:var(--ink-soft); border-color:var(--ink-soft); width:78%;}
+  .wbar.cite{background:var(--accent); border-color:var(--accent); width:26%;}
+  .wbar.mid{width:92%;}
+
+  /* ---------- Rationale panel ---------- */
+  .rationale{display:flex; flex-direction:column; gap:14px;}
+  .r-row{display:flex; gap:10px;}
+  .r-icon{
+    flex:none;
+    width:20px; height:20px;
+    margin-top:1px;
+  }
+  .r-body{min-width:0;}
+  .r-label{
+    font-size:10.5px;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    font-weight:600;
+    margin-bottom:3px;
+  }
+  .r-text{font-size:13.5px; line-height:1.55; color:var(--ink);}
+  .r-text.soft{color:var(--ink-soft);}
+  .r-goal .r-label{color:var(--accent);}
+  .r-bench .r-label{color:var(--warm);}
+  .r-logic .r-label{color:var(--ink-faint);}
+  .r-bound .r-label{color:var(--flag);}
+  .r-bound{
+    background:var(--flag-soft);
+    border-radius:8px;
+    padding:10px 12px;
+    margin-top:2px;
+  }
+  .r-bound .r-icon svg{stroke:var(--flag);}
+  .bench-item{margin-bottom:6px;}
+  .bench-item:last-child{margin-bottom:0;}
+
+  footer{
+    margin-top:20px;
+    padding-top:22px;
+    border-top:1px solid var(--line);
+    font-size:12px;
+    color:var(--ink-faint);
+    line-height:1.6;
+  }
+  footer a{color:var(--accent);}
+</style>
+
+<div class="page">
+  <nav class="ruler" aria-hidden="true">
+    <div class="ruler-title">Scroll</div>
+    <div class="ruler-track" id="ruler-track">
+      <div class="ruler-seg" data-target="b1" style="flex:15;"><span class="ruler-num mono">1</span></div>
+      <div class="ruler-seg" data-target="b2" style="flex:7;"><span class="ruler-num mono">2</span></div>
+      <div class="ruler-seg" data-target="b3" style="flex:13;"><span class="ruler-num mono">3</span></div>
+      <div class="ruler-seg" data-target="b4" style="flex:13;"><span class="ruler-num mono">4</span></div>
+      <div class="ruler-seg" data-target="b5" style="flex:10;"><span class="ruler-num mono">5</span></div>
+      <div class="ruler-seg" data-target="b6" style="flex:8;"><span class="ruler-num mono">6</span></div>
+      <div class="ruler-seg" data-target="b7" style="flex:12;"><span class="ruler-num mono">7</span></div>
+      <div class="ruler-seg" data-target="b8" style="flex:22;"><span class="ruler-num mono">8</span></div>
+    </div>
+  </nav>
+
+  <main>
+    <header>
+      <div class="eyebrow">Wireframe specification</div>
+      <h1>Gemini Notebook — landing page wireframe</h1>
+      <p class="dek">Eight sequential scroll blocks reconstructed from site analysis. Each block pairs a structural wireframe with the UX rationale that justifies it — what question it answers, the evidence behind it, why it sits in this order, and what it must never claim.</p>
+      <div class="legend">
+        <div class="legend-item"><span class="tag tag-a">A</span> Controlled study</div>
+        <div class="legend-item"><span class="tag tag-b">B</span> Observational dataset</div>
+        <div class="legend-item"><span class="tag tag-c">C</span> Market pattern</div>
+      </div>
+    </header>
+
+    <!-- BLOCK 1 -->
+    <section class="block" id="b1">
+      <div class="block-head">
+        <span class="pin">1</span>
+        <span class="block-kicker">Hero band</span>
+        <span class="block-range mono">0–15% scroll</span>
+      </div>
+      <h2 class="block-title">Core thesis, dual non-competing CTAs, skip anchor</h2>
+      <div class="block-grid">
+        <div class="sketch">
+          <div class="sketch-label">Layout</div>
+          <div class="wstack">
+            <span class="wpill">Category badge</span>
+            <div class="wbox"><span class="wlabel">H1</span><strong>“From manuals to verified understanding.”</strong></div>
+            <div class="wbox"><span class="wlabel">Subhead</span>placeholder line, 2 rows</div>
+            <div class="wrow">
+              <span class="wpill solid">Try on your own materials</span>
+              <span class="wpill">See team deployment ▾ → Block 7</span>
+            </div>
+            <div class="wbox">
+              <span class="wlabel">Answer preview (placeholder)</span>
+              <div class="wbars">
+                <div class="wbar ink"></div>
+                <div class="wbar mid"></div>
+                <div class="wbar cite"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="rationale">
+          <div class="r-row r-goal">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="4.5" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="1.4" fill="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Section goal</div><div class="r-text">Answers: “Can this tool handle my dense technical documentation without hallucinating?”</div></div>
+          </div>
+          <div class="r-row r-bench">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2.5h4M8.5 2.5v4.8L4.8 14.6a1.6 1.6 0 0 0 1.4 2.4h7.6a1.6 1.6 0 0 0 1.4-2.4L11.5 7.3V2.5"/></svg></span>
+            <div class="r-body">
+              <div class="r-label">Empirical benchmark</div>
+              <div class="bench-item"><span class="tag tag-a">A</span> <span class="r-text">Nielsen Norman Group (2018): 57% of viewing time is above the fold and 74% within the first two screenfuls — the fold must not present a false bottom (the illusion of completeness).</span></div>
+              <div class="bench-item"><span class="tag tag-a">A</span> <span class="r-text">Clearbit: sending ICP visitors straight to a demo form reduced demo requests by 20%.</span></div>
+            </div>
+          </div>
+          <div class="r-row r-logic">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h11M11 3l3 3-3 3"/><path d="M17 14H6M9 11l-3 3 3 3"/></svg></span>
+            <div class="r-body"><div class="r-label">Sequence logic</div><div class="r-text soft">Grounding mechanics must be understood before enterprise governance has any value.</div></div>
+          </div>
+          <div class="r-row r-bound">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke-width="1.6"><circle cx="10" cy="10" r="8" stroke="currentColor"/><path d="M4.8 4.8l10.4 10.4" stroke="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Operational boundary</div><div class="r-text">Strictly no audience switcher. Thirty B2B benchmarks (Notion, Slack, Linear) confirm audience toggles destroy bottom-up adoption.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOCK 2 -->
+    <section class="block" id="b2">
+      <div class="block-head">
+        <span class="pin">2</span>
+        <span class="block-kicker">Customer logo strip</span>
+        <span class="block-range mono">15–22% scroll</span>
+      </div>
+      <h2 class="block-title">Trusted by enterprise teams using Google Cloud &amp; Workspace</h2>
+      <div class="block-grid">
+        <div class="sketch">
+          <div class="sketch-label">Layout</div>
+          <div class="wrow">
+            <div class="wbox"><span class="wlabel">Logo</span>Sonata Design</div>
+            <div class="wbox"><span class="wlabel">Logo</span>Rivian</div>
+          </div>
+          <div class="wrow" style="margin-top:8px;">
+            <div class="wbox"><span class="wlabel">Logo</span>Transcom</div>
+            <div class="wbox"><span class="wlabel">Logo</span>Freshfields</div>
+          </div>
+        </div>
+        <div class="rationale">
+          <div class="r-row r-goal">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="4.5" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="1.4" fill="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Section goal</div><div class="r-text">Answers: “Does any recognized enterprise organization actually deploy this?”</div></div>
+          </div>
+          <div class="r-row r-bench">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2.5h4M8.5 2.5v4.8L4.8 14.6a1.6 1.6 0 0 0 1.4 2.4h7.6a1.6 1.6 0 0 0 1.4-2.4L11.5 7.3V2.5"/></svg></span>
+            <div class="r-body">
+              <div class="r-label">Empirical benchmark</div>
+              <div class="bench-item"><span class="tag tag-a">A</span> <span class="r-text">CXL Institute study (n=200): recognizable logos build brand trust and recall faster than unverified claims.</span></div>
+            </div>
+          </div>
+          <div class="r-row r-logic">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h11M11 3l3 3-3 3"/><path d="M17 14H6M9 11l-3 3 3 3"/></svg></span>
+            <div class="r-body"><div class="r-label">Sequence logic</div><div class="r-text soft">An immediate trust deposit in the top 20% of the page.</div></div>
+          </div>
+          <div class="r-row r-bound">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke-width="1.6"><circle cx="10" cy="10" r="8" stroke="currentColor"/><path d="M4.8 4.8l10.4 10.4" stroke="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Operational boundary</div><div class="r-text">Zero fictional “Company 1 / 2 / 3” placeholders.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOCK 3 -->
+    <section class="block" id="b3">
+      <div class="block-head">
+        <span class="pin">3</span>
+        <span class="block-kicker">Mechanism</span>
+        <span class="block-range mono">22–35% scroll</span>
+      </div>
+      <h2 class="block-title">Four concrete steps of work</h2>
+      <div class="block-grid">
+        <div class="sketch">
+          <div class="sketch-label">Layout</div>
+          <div class="wchain">
+            <div class="wbox"><span class="wlabel">1 · Source</span>Upload SOPs, ≤500k words</div>
+            <span class="warrow">→</span>
+            <div class="wbox"><span class="wlabel">2 · Query</span>Grounded, clickable [1][2]</div>
+          </div>
+          <div class="wchain" style="margin-top:8px;">
+            <div class="wbox"><span class="wlabel">3 · Studio</span>Guides, quizzes, slides</div>
+            <span class="warrow">→</span>
+            <div class="wbox"><span class="wlabel">4 · SME review</span>Export to Docs, Forms, Slides</div>
+          </div>
+        </div>
+        <div class="rationale">
+          <div class="r-row r-goal">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="4.5" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="1.4" fill="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Section goal</div><div class="r-text">Demystifies how verified value is produced, without a fragile chat simulator.</div></div>
+          </div>
+          <div class="r-row r-bench">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2.5h4M8.5 2.5v4.8L4.8 14.6a1.6 1.6 0 0 0 1.4 2.4h7.6a1.6 1.6 0 0 0 1.4-2.4L11.5 7.3V2.5"/></svg></span>
+            <div class="r-body">
+              <div class="r-label">Empirical benchmark</div>
+              <div class="bench-item"><span class="tag tag-b">B</span> <span class="r-text">Official Google Help documentation for Gemini Notebook: Sources → Chat → Studio.</span></div>
+            </div>
+          </div>
+          <div class="r-row r-logic">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h11M11 3l3 3-3 3"/><path d="M17 14H6M9 11l-3 3 3 3"/></svg></span>
+            <div class="r-body"><div class="r-label">Sequence logic</div><div class="r-text soft">The user must understand core product mechanics before discovering specific use cases.</div></div>
+          </div>
+          <div class="r-row r-bound">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke-width="1.6"><circle cx="10" cy="10" r="8" stroke="currentColor"/><path d="M4.8 4.8l10.4 10.4" stroke="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Operational boundary</div><div class="r-text">Do not promise automated publishing into corporate LMS platforms.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOCK 4 -->
+    <section class="block" id="b4">
+      <div class="block-head">
+        <span class="pin">4</span>
+        <span class="block-kicker">Use cases</span>
+        <span class="block-range mono">35–48% scroll</span>
+      </div>
+      <h2 class="block-title">Three repeatable L&amp;D tasks</h2>
+      <div class="block-grid">
+        <div class="sketch">
+          <div class="sketch-label">Layout</div>
+          <div class="wstack">
+            <div class="wbox"><span class="wlabel">Onboarding</span>140-page handbooks → verified first-week answers with page references</div>
+            <div class="wbox"><span class="wlabel">Development</span>Procedures → slide outlines &amp; knowledge checks in 15 min instead of 40 hrs</div>
+            <div class="wbox"><span class="wlabel">Maintenance</span>Query the delta when an SOP changes</div>
+          </div>
+        </div>
+        <div class="rationale">
+          <div class="r-row r-goal">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="4.5" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="1.4" fill="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Section goal</div><div class="r-text">Maps the product to existing operational budget lines and daily pain points.</div></div>
+          </div>
+          <div class="r-row r-bench">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2.5h4M8.5 2.5v4.8L4.8 14.6a1.6 1.6 0 0 0 1.4 2.4h7.6a1.6 1.6 0 0 0 1.4-2.4L11.5 7.3V2.5"/></svg></span>
+            <div class="r-body">
+              <div class="r-label">Empirical benchmark</div>
+              <div class="bench-item"><span class="tag tag-b">B</span> <span class="r-text">ATD &amp; Chapman Alliance: 49–154 production hours per finished hour of e-learning.</span></div>
+              <div class="bench-item"><span class="tag tag-c">C</span> <span class="r-text">Dr. William J. Ryan: L&amp;D is moving away from volume metrics toward cycle-time reduction.</span></div>
+            </div>
+          </div>
+          <div class="r-row r-logic">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h11M11 3l3 3-3 3"/><path d="M17 14H6M9 11l-3 3 3 3"/></svg></span>
+            <div class="r-body"><div class="r-label">Sequence logic</div><div class="r-text soft">Follows the workflow explanation.</div></div>
+          </div>
+          <div class="r-row r-bound">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke-width="1.6"><circle cx="10" cy="10" r="8" stroke="currentColor"/><path d="M4.8 4.8l10.4 10.4" stroke="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Operational boundary</div><div class="r-text">Do not pigeonhole the product into frontline service staff only.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOCK 5 -->
+    <section class="block" id="b5">
+      <div class="block-head">
+        <span class="pin">5</span>
+        <span class="block-kicker">Objection handling</span>
+        <span class="block-range mono">48–58% scroll</span>
+      </div>
+      <h2 class="block-title">Clickable citations to the exact paragraph. Zero ungrounded generation.</h2>
+      <div class="block-grid">
+        <div class="sketch">
+          <div class="sketch-label">Layout</div>
+          <div class="wbox quote">“40% of AI-generated enterprise materials contain fabricated citations (Dr. Philippa Hardman, synthesis of 18 AI studies). Gemini Notebook anchors every response strictly to your uploaded text.”</div>
+          <div class="wrow" style="margin-top:8px;">
+            <span class="wpill solid">Demo widget — primary</span>
+            <span class="wpill">Demo widget — secondary</span>
+          </div>
+        </div>
+        <div class="rationale">
+          <div class="r-row r-goal">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="4.5" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="1.4" fill="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Section goal</div><div class="r-text">Neutralizes the #1 objection of L&amp;D, Legal, and Compliance executives.</div></div>
+          </div>
+          <div class="r-row r-bench">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2.5h4M8.5 2.5v4.8L4.8 14.6a1.6 1.6 0 0 0 1.4 2.4h7.6a1.6 1.6 0 0 0 1.4-2.4L11.5 7.3V2.5"/></svg></span>
+            <div class="r-body">
+              <div class="r-label">Empirical benchmark</div>
+              <div class="bench-item"><span class="tag tag-a">A</span> <span class="r-text">Hardman synthesis of 18 AI studies on fabricated citations in generated learning materials.</span></div>
+            </div>
+          </div>
+          <div class="r-row r-logic">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h11M11 3l3 3-3 3"/><path d="M17 14H6M9 11l-3 3 3 3"/></svg></span>
+            <div class="r-body"><div class="r-label">Sequence logic</div><div class="r-text soft">Mid-page, right when executive skepticism peaks.</div></div>
+          </div>
+          <div class="r-row r-bound">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke-width="1.6"><circle cx="10" cy="10" r="8" stroke="currentColor"/><path d="M4.8 4.8l10.4 10.4" stroke="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Operational boundary</div><div class="r-text">Do not claim the model is infallible; frame citations as empowering SME review.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOCK 6 -->
+    <section class="block" id="b6">
+      <div class="block-head">
+        <span class="pin">6</span>
+        <span class="block-kicker">Stack position</span>
+        <span class="block-range mono">58–66% scroll</span>
+      </div>
+      <h2 class="block-title">Complements your LMS. Does not replace it.</h2>
+      <div class="block-grid">
+        <div class="sketch">
+          <div class="sketch-label">Layout</div>
+          <div class="wchain">
+            <div class="wbox"><span class="wlabel">Gemini Notebook</span>Preparation, grounded Q&amp;A, rapid authoring</div>
+            <span class="warrow">→</span>
+            <div class="wbox"><span class="wlabel">Existing LMS</span>Cornerstone / Workday / Moodle — tracking &amp; compliance</div>
+          </div>
+        </div>
+        <div class="rationale">
+          <div class="r-row r-goal">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="4.5" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="1.4" fill="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Section goal</div><div class="r-text">Removes friction with procurement and IT — confirms they don't need to replace their incumbent LMS.</div></div>
+          </div>
+          <div class="r-row r-bench">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2.5h4M8.5 2.5v4.8L4.8 14.6a1.6 1.6 0 0 0 1.4 2.4h7.6a1.6 1.6 0 0 0 1.4-2.4L11.5 7.3V2.5"/></svg></span>
+            <div class="r-body">
+              <div class="r-label">Empirical benchmark</div>
+              <div class="bench-item"><span class="tag tag-b">B</span> <span class="r-text">CommLab India LMS market analysis; 21 CFR Part 11 audit-trail requirements remain with the LMS of record.</span></div>
+            </div>
+          </div>
+          <div class="r-row r-logic">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h11M11 3l3 3-3 3"/><path d="M17 14H6M9 11l-3 3 3 3"/></svg></span>
+            <div class="r-body"><div class="r-label">Sequence logic</div><div class="r-text soft">Prepares the buyer for the enterprise governance section.</div></div>
+          </div>
+          <div class="r-row r-bound">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke-width="1.6"><circle cx="10" cy="10" r="8" stroke="currentColor"/><path d="M4.8 4.8l10.4 10.4" stroke="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Operational boundary</div><div class="r-text">The word “certification” is strictly banned.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOCK 7 -->
+    <section class="block" id="b7">
+      <div class="block-head">
+        <span class="pin">7</span>
+        <span class="block-kicker">Enterprise governance</span>
+        <span class="block-range mono">66–78% scroll</span>
+      </div>
+      <h2 class="block-title">Data isolation and admin controls built into Google Workspace</h2>
+      <div class="block-grid">
+        <div class="sketch">
+          <div class="sketch-label">Layout</div>
+          <div class="wstack">
+            <div class="wbox">Customer data and prompts are not used to train foundation models</div>
+            <div class="wbox">Managed under Google Cloud IAM and the Workspace Admin Console</div>
+            <div class="wbox">Pricing: included in Workspace plans, or standalone Google Cloud — $9/license/mo, min. 15</div>
+          </div>
+        </div>
+        <div class="rationale">
+          <div class="r-row r-goal">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="4.5" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="1.4" fill="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Section goal</div><div class="r-text">Equips the internal project champion with unambiguous facts for CISO, InfoSec, and legal review.</div></div>
+          </div>
+          <div class="r-row r-bench">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2.5h4M8.5 2.5v4.8L4.8 14.6a1.6 1.6 0 0 0 1.4 2.4h7.6a1.6 1.6 0 0 0 1.4-2.4L11.5 7.3V2.5"/></svg></span>
+            <div class="r-body">
+              <div class="r-label">Empirical benchmark</div>
+              <div class="bench-item"><span class="tag tag-b">B</span> <span class="r-text">Gartner B2B buying journey: buying groups of 6–10 spend only 17% of their time with vendors — they need self-serve security ammunition.</span></div>
+            </div>
+          </div>
+          <div class="r-row r-logic">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h11M11 3l3 3-3 3"/><path d="M17 14H6M9 11l-3 3 3 3"/></svg></span>
+            <div class="r-body"><div class="r-label">Sequence logic</div><div class="r-text soft">Positioned where the serious buyer scrolls to, or lands via the hero anchor.</div></div>
+          </div>
+          <div class="r-row r-bound">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke-width="1.6"><circle cx="10" cy="10" r="8" stroke="currentColor"/><path d="M4.8 4.8l10.4 10.4" stroke="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Operational boundary</div><div class="r-text">Do not promise HIPAA, FedRAMP, or Workspace DLP integration without official clearance.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOCK 8 -->
+    <section class="block" id="b8">
+      <div class="block-head">
+        <span class="pin">8</span>
+        <span class="block-kicker">Proof, FAQ &amp; close</span>
+        <span class="block-range mono">78–100% scroll</span>
+      </div>
+      <h2 class="block-title">Everything you need to start with your first document</h2>
+      <div class="block-grid">
+        <div class="sketch">
+          <div class="sketch-label">Layout</div>
+          <div class="wrow">
+            <div class="wbox"><span class="wlabel">Testimonial</span>L&amp;D Specialist — on review speed (placeholder)</div>
+            <div class="wbox"><span class="wlabel">Testimonial</span>Operations Director — on verification accuracy (placeholder)</div>
+          </div>
+          <div class="wbox" style="margin-top:8px;"><span class="wlabel">Accordion FAQ</span>Q1 · Q2 · Q3 (collapsed rows)</div>
+          <div class="wrow" style="margin-top:8px;">
+            <span class="wpill solid">Try on your own materials</span>
+            <span class="wpill">Contact sales for team deployment</span>
+          </div>
+        </div>
+        <div class="rationale">
+          <div class="r-row r-goal">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="4.5" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="1.4" fill="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Section goal</div><div class="r-text">Resolves remaining micro-objections and provides balanced conversion pathways.</div></div>
+          </div>
+          <div class="r-row r-bench">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2.5h4M8.5 2.5v4.8L4.8 14.6a1.6 1.6 0 0 0 1.4 2.4h7.6a1.6 1.6 0 0 0 1.4-2.4L11.5 7.3V2.5"/></svg></span>
+            <div class="r-body">
+              <div class="r-label">Empirical benchmark</div>
+              <div class="bench-item"><span class="tag tag-b">B</span> <span class="r-text">Benchmark of 17 B2B leaders and the Analytics Toolkit meta-analysis of 1,001 A/B tests.</span></div>
+            </div>
+          </div>
+          <div class="r-row r-logic">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h11M11 3l3 3-3 3"/><path d="M17 14H6M9 11l-3 3 3 3"/></svg></span>
+            <div class="r-body"><div class="r-label">Sequence logic</div><div class="r-text soft">Bottom-of-page close.</div></div>
+          </div>
+          <div class="r-row r-bound">
+            <span class="r-icon"><svg viewBox="0 0 20 20" fill="none" stroke-width="1.6"><circle cx="10" cy="10" r="8" stroke="currentColor"/><path d="M4.8 4.8l10.4 10.4" stroke="currentColor"/></svg></span>
+            <div class="r-body"><div class="r-label">Operational boundary</div><div class="r-text">No marketing buzzwords in FAQ answers.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Reconstructed from a wireframe-inspection tool run against gemini-notebook-ld-hub.vercel.app. Scroll ranges, evidence tags, and boundary notes are quoted from that analysis; layout blocks are redrawn as structural wireframes, not screenshots.
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  try{
+    var segs = Array.prototype.slice.call(document.querySelectorAll('.ruler-seg'));
+    if(!segs.length) return;
+    var map = {};
+    segs.forEach(function(s){ map[s.getAttribute('data-target')] = s; });
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        var seg = map[entry.target.id];
+        if(!seg) return;
+        if(entry.isIntersecting){
+          segs.forEach(function(s){ s.classList.remove('active'); });
+          seg.classList.add('active');
+        }
+      });
+    }, {rootMargin:'-45% 0px -45% 0px', threshold:0});
+    document.querySelectorAll('.block').forEach(function(b){ io.observe(b); });
+  }catch(e){}
+})();
+</script>
